@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.TEAM202507_01.user.repository.MyPageMapper">
+
+    <select id="findUuidByLoginId" parameterType="String" resultType="String">
+        SELECT ID
+        FROM USERS
+        WHERE LOGIN_ID = #{loginId}
+    </select>
+
+    <select id="selectUserInfo" parameterType="String" resultType="com.example.TEAM202507_01.user.dto.MyPageDto">
+        SELECT
+            ID       AS "id",
+            LOGIN_ID AS "loginId",
+            NICKNAME AS "nickname",
+            EMAIL    AS "email",
+            NAME     AS "name",
+            GENDER   AS "gender",
+            TO_CHAR(birth_date, 'YYYY-MM-DD') AS "birthDate"
+        FROM USERS
+        WHERE LOGIN_ID = #{loginId}
+    </select>
+
+    <select id="selectMyPosts" parameterType="map" resultType="map">
+        SELECT * FROM (
+                          SELECT ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS RN,
+                              ID AS "id",
+                                 TITLE AS "title",
+                                 CATEGORY AS "category",
+                                 TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS "createdAt"
+                          FROM POSTS
+                          WHERE USER_ID = #{userId}
+                      )
+        WHERE RN BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <select id="selectMyComments" parameterType="map" resultType="map">
+        SELECT * FROM (
+                          SELECT ROW_NUMBER() OVER (ORDER BY C.CREATED_AT DESC) AS RN,
+                              C.ID AS "id",
+                              C.POST_ID,
+                                 TO_CHAR(C.CONTENT) AS "content",
+                                 P.TITLE AS "title",
+                                 TO_CHAR(C.CREATED_AT, 'YYYY-MM-DD') AS "createdAt"
+                          FROM COMMENTS C
+                                   JOIN POSTS P ON C.POST_ID = P.ID
+                          WHERE C.USER_ID = #{userId}
+                            AND C.IS_DELETE = 0
+                      )
+        WHERE RN BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <select id="selectMyFavorites" parameterType="map" resultType="map">
+        SELECT * FROM (
+                          SELECT ROW_NUMBER() OVER (ORDER BY f.FOV_ID DESC) AS RN,
+                                 f.FOV_ID AS "id",
+                                 f.CATEGORY AS "category",
+                                 CASE
+                                     WHEN f.CATEGORY = 'JOBS'        THEN (SELECT title FROM job_post WHERE TO_CHAR(id) = f.FOV_ID)
+                                     WHEN f.CATEGORY = 'HOSPITALS'   THEN (SELECT NAME FROM HOSPITALS WHERE TO_CHAR(ID) = f.FOV_ID)
+                                     -- ▼ 아래 줄이 수정되었습니다 (S 제거) ▼
+                                     WHEN f.CATEGORY = 'RESTOURANTS'  THEN (SELECT rest_NAME FROM restaurant WHERE TO_CHAR(rest_id) = f.FOV_ID)
+                                     WHEN f.CATEGORY = 'TOURS'       THEN (SELECT tour_name FROM tourism WHERE TO_CHAR(tour_id) = f.FOV_ID)
+                                     ELSE 'unknown'
+                                     END AS "title"
+                          FROM fov_list f
+                          WHERE f.USER_ID = #{userId}
+                      )
+        WHERE RN BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <update id="updateUserInfo" parameterType="com.example.TEAM202507_01.user.dto.MyPageDto">
+        UPDATE USERS SET NICKNAME = #{nickname}, EMAIL = #{email} WHERE LOGIN_ID = #{id}
+    </update>
+
+    <update id="updatePost">
+        UPDATE POSTS SET TITLE = #{title}, CONTENT = #{content}, UPDATED_AT = SYSDATE
+        WHERE ID = #{id} AND USER_ID = #{userId}
+    </update>
+
+    <update id="updateComment">
+        UPDATE COMMENTS SET CONTENT = #{content} WHERE ID = #{id} AND USER_ID = #{userId}
+    </update>
+
+    <delete id="deletePost">
+        DELETE FROM POSTS WHERE ID = #{id} AND USER_ID = #{userId}
+    </delete>
+
+    <update id="deleteComment">
+        UPDATE COMMENTS SET IS_DELETE = 1 WHERE ID = #{id} AND USER_ID = #{userId}
+    </update>
+
+    <delete id="deleteFavorite">
+        DELETE FROM fov_list WHERE FOV_ID = TO_CHAR(#{id}) AND USER_ID = #{userId}
+    </delete>
+
+</mapper>

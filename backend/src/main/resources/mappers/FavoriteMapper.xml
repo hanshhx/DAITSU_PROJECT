@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.user.repository.FavoriteMapper">
+
+    <select id="exists" resultType="int">
+        SELECT COUNT(*) FROM FOV_LIST
+        WHERE CATEGORY = #{category} AND USER_ID = #{userId} AND FOV_ID = #{fovId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO FOV_LIST (CATEGORY, USER_ID, FOV_ID)
+        VALUES (#{category}, #{userId}, #{fovId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM FOV_LIST
+        WHERE CATEGORY = #{category} AND USER_ID = #{userId} AND FOV_ID = #{fovId}
+    </delete>
+</mapper>

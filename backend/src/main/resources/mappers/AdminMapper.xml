@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.TEAM202507_01.admin.repository.AdminMapper">
+
+    <select id="selectDailyVisitCount" parameterType="map" resultType="map">
+        SELECT
+            TO_CHAR(VISIT_DT, 'YYYY-MM-DD') AS "visitDate",
+            COUNT(*) AS "count"
+        FROM VISIT_LOGS
+        WHERE VISIT_DT BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD')
+                  AND TO_DATE(#{endDate} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+        GROUP BY TO_CHAR(VISIT_DT, 'YYYY-MM-DD')
+        ORDER BY "visitDate" ASC
+    </select>
+
+    <select id="selectTrafficSourceStats" resultType="map">
+        SELECT
+        TRAFFIC_SOURCE AS "source",
+        COUNT(*) AS "count"
+        FROM VISIT_LOGS
+        GROUP BY TRAFFIC_SOURCE
+        ORDER BY "count" DESC
+    </select>
+
+    <insert id="insertVisitLog" parameterType="map">
+        INSERT INTO VISIT_LOGS (
+            TRAFFIC_SOURCE,
+            REFERRER_URL,
+            LANDING_PAGE,
+            USER_IP,
+            USER_AGENT
+        ) VALUES (
+                     #{trafficSource},
+                     #{referrerUrl},
+                     #{landingPage},
+                     #{userIp},
+                     #{userAgent}
+                 )
+    </insert>
+</mapper>

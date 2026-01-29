@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: daitshu-elastic
+    environment:
+      - node.name=daitshu-node
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    # Nori 플러그인 설치 명령
+    command: >
+      /bin/sh -c "./bin/elasticsearch-plugin list | grep -q analysis-nori || ./bin/elasticsearch-plugin install analysis-nori; /usr/local/bin/docker-entrypoint.sh elasticsearch"
+
+  redis:
+    image: redis:alpine       # 수정됨 (images -> image)
+    container_name: myredis 
+    ports:
+      - "6379:6379"           # 수정됨 (하이픈 뒤에 띄어쓰기 추가)
+
+volumes:
+  es_data:

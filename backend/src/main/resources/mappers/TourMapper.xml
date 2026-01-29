@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.menus.tour.repository.TourMapper">
+
+    <resultMap id="TourMap" type="TourDto">
+        <id property="id" column="tour_id" />
+        <result property="name" column="tour_name" />
+        <result property="address" column="tour_address" />
+        <result property="phone" column="tour_phone" />
+        <result property="description" column="tour_summary" />
+        <result property="image" column="tour_image" />
+    </resultMap>
+
+    <select id="findAll" resultMap="TourMap">
+        SELECT
+            *
+        FROM tourism
+        ORDER BY tour_id DESC
+    </select>
+
+    <select id="findById" resultMap="TourMap">
+        SELECT * FROM tourism
+        WHERE tour_id = #{id}
+    </select>
+
+<!--    <insert id="save" parameterType="TourDto">-->
+<!--        <selectKey keyProperty="id" resultType="Long" order="BEFORE">-->
+<!--            SELECT SEQ_TOURISM_ID.NEXTVAL FROM DUAL-->
+<!--        </selectKey>-->
+
+<!--        INSERT INTO tourism (-->
+<!--        CATEGORY,        tour_id,-->
+<!--        tour_name,-->
+<!--        tour_address,-->
+<!--        tour_phone,-->
+<!--        tourspotSumm,    tour_price,-->
+<!--        tour_open_time-->
+<!--        ) VALUES (-->
+<!--        'TOURS',         #{id},-->
+<!--        #{name},-->
+<!--        #{address},-->
+<!--        #{phone},-->
+<!--        #{description},-->
+<!--        #{price},-->
+<!--        #{openTime}-->
+<!--        )-->
+<!--    </insert>-->
+
+<!--    <update id="update" parameterType="TourDto">-->
+<!--        UPDATE tourism-->
+<!--        SET-->
+<!--            tour_name = #{name},-->
+<!--            tour_address = #{address},-->
+<!--            tour_phone = #{phone},-->
+<!--            tourspotSumm = #{description},-->
+<!--            tour_price = #{price},-->
+<!--            tour_open_time = #{openTime}-->
+<!--        WHERE tour_id = #{id}-->
+<!--    </update>-->
+
+    <delete id="delete">
+        DELETE FROM tourism
+        WHERE tour_id = #{id}
+    </delete>
+
+</mapper>

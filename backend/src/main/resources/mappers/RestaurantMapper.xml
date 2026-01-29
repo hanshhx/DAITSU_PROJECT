@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.menus.restaurant.repository.RestaurantMapper">
+
+    <select id="findAll" resultType="RestaurantDto">
+        SELECT
+            REST_ID as id,
+            REST_NAME as name,
+            REST_ADDRESS as address,
+            REST_ADDRESS_DETAIL as addressDetail,
+            REST_PHONE as phone,
+            NVL(REST_OPEN_TIME, '매일 09:00~21:00') as openTime,
+            REST_CATEGORY as restCategory,
+            REST_BEST_MENU as bestMenu,
+            REST_MENU as menu,
+            REST_MENU_DETAIL as menuDetail,
+            REST_PRICE as price,
+            REST_URL as url,
+            REST_IMAGE as imagePath
+        FROM restaurant
+        ORDER BY REST_ID DESC
+    </select>
+
+    <select id="findById" resultType="RestaurantDto">
+        SELECT REST_ID as id,
+               REST_NAME as name,
+               REST_ADDRESS as address,
+               REST_ADDRESS_DETAIL as addressDetail,
+               REST_PHONE as phone,
+               NVL(REST_OPEN_TIME, '매일 09:00~22:00') as openTime,
+               REST_CATEGORY as restCategory,
+               REST_BEST_MENU as bestMenu,
+               REST_MENU as menu,
+               REST_MENU_DETAIL as menuDetail,
+               REST_PRICE as price,
+               REST_URL as url,
+               REST_IMAGE as imagePath
+        FROM restaurant
+        WHERE REST_ID = #{id}
+    </select>
+
+    <select id="findNameById" resultType="RestaurantDto">
+        SELECT REST_ID as id, REST_NAME as name, REST_ADDRESS as address
+        FROM RESTAURANT
+        WHERE REST_ID = #{id}
+    </select>
+
+    <insert id="save" keyColumn="REST_ID">
+        INSERT INTO restaurant (
+            REST_ID,
+            REST_NAME,
+            REST_ADDRESS,
+            REST_ADDRESS_DETAIL,
+            REST_PHONE,
+            REST_OPEN_TIME,
+            REST_CATEGORY,
+            REST_BEST_MENU,
+            REST_MENU,
+            REST_MENU_DETAIL,
+            REST_PRICE,
+            REST_URL
+                REST_IMAGE
+        ) VALUES (
+                     #{id},
+                     #{name},
+                     #{address},
+                     #{addressDetail},
+                     #{phone},
+                     #{openTime},
+                     #{restCategory},
+                     #{bestMenu},
+                     #{menu, typeHandler=ListStringTypeHandler},
+                     #{menuDetail, typeHandler=ListStringTypeHandler},
+                     #{price, typeHandler=ListStringTypeHandler},
+                     #{url},
+                     #{imagePath}
+                 )
+    </insert>
+
+    <update id="update" parameterType="RestaurantDto">
+        UPDATE restaurant
+        SET
+            REST_NAME = #{name},
+            REST_ADDRESS = #{address},
+            REST_ADDRESS_DETAIL = #{addressDetail},
+            REST_PHONE = #{phone},
+            REST_OPEN_TIME = #{openTime},
+            REST_CATEGORY = #{restCategory},
+            REST_BEST_MENU = #{bestMenu},
+            REST_MENU = #{menu},
+            REST_MENU_DETAIL = #{menuDetail},
+            REST_PRICE = #{price},
+            REST_URL = #{url}
+            REST_IMAGE = #{imagePath}
+        WHERE REST_ID = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM restaurant
+        WHERE REST_ID = #{id}
+    </delete>
+    <update id="updateImage" parameterType="map">
+        UPDATE restaurant
+        SET REST_IMAGE = #{imagePath}
+        WHERE REST_ID = #{imageId}
+    </update>
+
+    <select id="findAllWithUrl" resultType="RestaurantDto">
+        SELECT REST_ID as id, REST_URL as url
+        FROM restaurant
+        WHERE REST_URL IS NOT NULL
+        ORDER BY REST_ID ASC
+    </select>
+
+</mapper>

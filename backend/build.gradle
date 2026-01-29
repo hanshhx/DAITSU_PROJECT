@@ -1,0 +1,79 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    // 1. 기본 부트 스타터 (기존에 있던 것)
+    implementation 'org.springframework.boot:spring-boot-starter'
+    
+    // 2. 웹 개발 필수 (REST API, MVC 등) - ★추가됨
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // [추가] MyBatis 스프링 부트 스타터
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+    // 4. Validation (데이터 유효성 검사) - ★추가됨
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 5. 롬복 (Lombok) - ★추가됨 (Gradle은 2줄 필요)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 6. DevTools (서버 재시작 없이 반영) - ★추가됨
+    //developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 7. 오라클 드라이버 (작성하신 것)
+    implementation 'com.oracle.database.jdbc:ojdbc11'
+    
+    // 8. 테스트 (기존에 있던 것)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    // 시큐리티 추가
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    // ElasticSearch 추가
+   implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // JWT토큰 관련
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'org.jsoup:jsoup:1.16.1'
+    // Selenium java
+    implementation 'org.seleniumhq.selenium:selenium-java:4.16.1'
+    // WebDriver Manager (드라이버 자동 관리용)
+    implementation 'io.github.bonigarcia:webdrivermanager:5.6.2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // pusher
+    implementation 'com.pusher:pusher-http-java:1.0.0'
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // swagger api 정리본(springdoc)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+}
+
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

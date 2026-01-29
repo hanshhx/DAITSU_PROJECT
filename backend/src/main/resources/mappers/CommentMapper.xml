@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.menus.community.repository.CommentMapper">
+
+    <select id="findAllByPostId" resultType="com.example.TEAM202507_01.menus.community.dto.CommentDto">
+        SELECT
+            C.ID,
+            C.POST_ID,
+            C.USER_ID,
+            U.NICKNAME AS userNickname, C.CONTENT,
+            C.IS_DELETE,
+            C.CREATED_AT,
+            C.PARENT_ID
+        FROM COMMENTS C
+                 LEFT JOIN USERS U ON C.USER_ID = U.ID
+        WHERE C.POST_ID = #{postId}
+        ORDER BY C.CREATED_AT ASC, C.ID ASC
+    </select>
+
+    <insert id="save" parameterType="com.example.TEAM202507_01.menus.community.dto.CommentDto">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT NVL(MAX(ID), 0) + 1 FROM COMMENTS
+        </selectKey>
+        INSERT INTO COMMENTS (
+        ID, POST_ID, USER_ID, CONTENT, IS_DELETE, CREATED_AT, PARENT_ID
+        ) VALUES (
+        #{id}, #{postId}, #{userId}, #{content}, 0, SYSDATE, #{parentId, jdbcType=NUMERIC}
+        )
+    </insert>
+
+    <update id="delete">
+        UPDATE COMMENTS SET IS_DELETE = 1 WHERE ID = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.TEAM202507_01.menus.community.repository.CommunityMapper">
+
+    <insert id="insertPost" parameterType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+            SELECT post_seq.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO POSTS (ID, USER_ID, CATEGORY, TITLE, CONTENT, VIEW_COUNT, CREATED_AT)
+        VALUES (#{id}, #{userId}, #{category}, #{title}, #{content}, 0, SYSDATE)
+    </insert>
+
+    <insert id="insertFile">
+        INSERT INTO FILES (
+            TARGET_ID,
+            CATEGORY,
+            ORIGINAL_NAME,
+            SAVED_NAME,
+            FILE_PATH,
+            CREATED_AT
+        ) VALUES (
+                     #{targetId},
+                     #{category},
+                     #{originalName},
+                     #{savedName},
+                     #{filePath},
+                     SYSDATE
+                 )
+    </insert>
+
+    <select id="findAll" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT P.ID, P.TITLE, P.CONTENT, P.CATEGORY, P.VIEW_COUNT AS "viewCount",
+               P.CREATED_AT AS "createdAt", P.UPDATED_AT AS "updatedAt",
+               U.NICKNAME AS "userNickname", P.USER_ID AS "userId"
+        FROM POSTS P
+                 LEFT JOIN USERS U ON P.USER_ID = U.ID
+        ORDER BY P.CREATED_AT DESC
+    </select>
+
+    <select id="selectAllPosts" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT * FROM (
+                          SELECT ROWNUM AS RNUM, A.* FROM (
+                                                              SELECT P.ID, P.TITLE, P.CONTENT, P.CATEGORY, P.VIEW_COUNT AS "viewCount",
+                                                                     P.CREATED_AT AS "createdAt",
+                                                                     U.NICKNAME AS "userNickname", P.USER_ID AS "userId",
+                                                                     (SELECT COUNT(*) FROM COMMENTS C WHERE C.POST_ID = P.ID AND C.IS_DELETE = 0) AS "commentCount",
+                                                                     (SELECT COUNT(*) FROM POST_LIKES PL WHERE PL.POST_ID = P.ID) AS "likeCount",
+                                                                     (SELECT FILE_PATH FROM FILES F WHERE F.TARGET_ID = P.ID AND ROWNUM = 1) AS "filePath"
+                                                              FROM POSTS P
+                                                                       LEFT JOIN USERS U ON P.USER_ID = U.ID
+                                                              ORDER BY P.CREATED_AT DESC
+                                                          ) A WHERE ROWNUM &lt;= #{offset} + #{size}
+                      ) WHERE RNUM &gt; #{offset}
+    </select>
+
+    <select id="selectPostsByCategoryPaging" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT * FROM (
+                          SELECT ROWNUM AS RNUM, A.* FROM (
+                                                              SELECT P.ID, P.TITLE, P.CONTENT, P.CATEGORY, P.VIEW_COUNT AS "viewCount",
+                                                                     P.CREATED_AT AS "createdAt",
+                                                                     U.NICKNAME AS "userNickname", P.USER_ID AS "userId",
+                                                                     (SELECT COUNT(*) FROM COMMENTS C WHERE C.POST_ID = P.ID AND C.IS_DELETE = 0) AS "commentCount",
+                                                                     (SELECT COUNT(*) FROM POST_LIKES PL WHERE PL.POST_ID = P.ID) AS "likeCount",
+                                                                     (SELECT FILE_PATH FROM FILES F WHERE F.TARGET_ID = P.ID AND ROWNUM = 1) AS "filePath"
+                                                              FROM POSTS P
+                                                                       LEFT JOIN USERS U ON P.USER_ID = U.ID
+                                                              WHERE P.CATEGORY = #{category}
+                                                              ORDER BY P.CREATED_AT DESC
+                                                          ) A WHERE ROWNUM &lt;= #{offset} + #{size}
+                      ) WHERE RNUM &gt; #{offset}
+    </select>
+
+    <select id="selectPostsByCategory" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT P.ID, P.TITLE, P.CONTENT, P.CATEGORY, P.VIEW_COUNT AS "viewCount",
+               P.CREATED_AT AS "createdAt", U.NICKNAME AS "userNickname", P.USER_ID AS "userId"
+        FROM POSTS P
+                 LEFT JOIN USERS U ON P.USER_ID = U.ID
+        WHERE P.CATEGORY = #{category}
+        ORDER BY P.CREATED_AT DESC
+    </select>
+
+    <select id="selectPostById" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT P.ID, P.TITLE, P.CONTENT, P.CATEGORY, P.VIEW_COUNT AS "viewCount",
+               P.CREATED_AT AS "createdAt",
+               U.NICKNAME AS "userNickname", P.USER_ID AS "userId",
+               (SELECT COUNT(*) FROM POST_LIKES L WHERE L.POST_ID = P.ID) AS "likeCount"
+        FROM POSTS P
+                 LEFT JOIN USERS U ON P.USER_ID = U.ID
+        WHERE P.ID = #{id}
+    </select>
+
+    <select id="selectFilePathsByPostId" resultType="string">
+        SELECT FILE_PATH FROM FILES WHERE TARGET_ID = #{postId}
+    </select>
+
+    <select id="selectOtherPostsByUserId" resultType="com.example.TEAM202507_01.menus.community.dto.CommunityDto">
+        SELECT * FROM (
+                          SELECT P.ID, P.TITLE, P.CREATED_AT AS "createdAt", P.VIEW_COUNT AS "viewCount",
+                                 (SELECT FILE_PATH FROM FILES F WHERE F.TARGET_ID = P.ID AND ROWNUM = 1) AS "filePath"
+                          FROM POSTS P
+                          WHERE P.USER_ID = #{userId} AND P.ID != #{currentPostId}
+                          ORDER BY P.CREATED_AT DESC
+                      ) WHERE ROWNUM &lt;= 4
+    </select>
+
+    <delete id="deletePost">
+        DELETE FROM POSTS WHERE ID = #{id}
+    </delete>
+
+    <select id="selectCommentsByPostId" resultType="com.example.TEAM202507_01.menus.community.dto.CommentDto">
+        SELECT C.ID, C.POST_ID AS "postId", C.CONTENT, C.CREATED_AT AS "createdAt",
+               U.NICKNAME AS "userNickname", C.USER_ID AS "userId", C.IS_DELETE AS "isDelete", C.PARENT_ID AS "parentId"
+        FROM COMMENTS C
+                 LEFT JOIN USERS U ON C.USER_ID = U.ID
+        WHERE C.POST_ID = #{postId} AND C.IS_DELETE = 0
+        ORDER BY C.CREATED_AT ASC
+    </select>
+
+    <insert id="insertComment">
+        INSERT INTO COMMENTS (ID, POST_ID, USER_ID, CONTENT, CREATED_AT, PARENT_ID)
+        VALUES (comment_seq.NEXTVAL, #{postId}, #{userId}, #{content}, SYSDATE, #{parentId})
+    </insert>
+
+    <update id="deleteComment">
+        UPDATE COMMENTS SET IS_DELETE = 1 WHERE ID = #{id}
+    </update>
+
+    <update id="viewCountIncrease">
+        UPDATE POSTS SET VIEW_COUNT = VIEW_COUNT + 1 WHERE ID = #{id}
+    </update>
+
+    <insert id="likeIncrease">
+        INSERT INTO POST_LIKES (USER_ID, POST_ID, CREATED_AT)
+        VALUES (#{userId}, #{id}, SYSDATE)
+    </insert>
+
+    <delete id="likeDecrease">
+        DELETE FROM POST_LIKES WHERE USER_ID = #{userId} AND POST_ID = #{id}
+    </delete>
+
+    <select id="likeExists" resultType="int">
+        SELECT COUNT(*)
+        FROM POST_LIKES
+        WHERE USER_ID = #{userId} AND POST_ID = #{id}
+    </select>
+
+    <select id="likeCount" resultType="int">
+        SELECT COUNT(*) FROM POST_LIKES WHERE POST_ID = #{id}
+    </select>
+
+    <delete id="deleteAllLike">
+        DELETE FROM POST_LIKES
+        WHERE POST_ID = #{id}
+    </delete>
+
+
+    <delete id="deleteAllComment">
+        DELETE FROM COMMENTS
+        WHERE POST_ID = #{id}
+    </delete>
+
+</mapper>

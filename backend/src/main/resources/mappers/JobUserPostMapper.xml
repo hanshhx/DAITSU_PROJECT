@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.menus.job.repository.JobUserPostMapper">
+
+    <select id="findAll" resultType="com.example.TEAM202507_01.menus.job.entity.JobUserPost">
+        SELECT
+            ID,
+            CATEGORY,
+            USER_ID,
+            TITLE,
+            COMPANY_NAME,
+            COMPANY_TYPE,
+            DESCRIPTION,
+            CAREER_LEVEL,
+            EDUCATION,
+            DEADLINE, TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT,
+            IS_ACTIVE
+        FROM job_user_post
+        ORDER BY ID DESC
+    </select>
+    <!-- insertJobUserPost: 사용자 구직글 저장 -->
+    <insert id="insertJobUserPost" parameterType="com.example.TEAM202507_01.menus.job.entity.JobUserPost">
+        <!-- [핵심] selectKey: 오라클 시퀀스 처리 -->
+        <!-- keyProperty="id": 가져온 번호를 자바 객체의 id 변수에 미리 넣음 -->
+        <!-- order="BEFORE": INSERT 실행하기 '전'에 번호부터 따옴 -->
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT "TEAM202507_01"."ISEQ$$_234317".nextval FROM DUAL
+        </selectKey>
+
+        INSERT INTO job_user_post (
+        ID, CATEGORY, USER_ID, TITLE,
+        COMPANY_NAME, COMPANY_TYPE, DESCRIPTION,
+        CAREER_LEVEL, EDUCATION, DEADLINE,
+        CREATED_AT, IS_ACTIVE
+        ) VALUES (
+        #{id}, <!-- 위에서 selectKey로 따온 id를 여기서 씀 -->
+        'JOBS',
+        #{userId},
+        #{title},
+        #{companyName},
+        #{companyType},
+        #{description},
+        #{careerLevel},
+        #{education},
+        #{deadline}, SYSDATE,
+        #{isActive}
+        )
+    </insert>
+
+    <update id="updateJobUserPost" parameterType="com.example.TEAM202507_01.menus.job.entity.JobUserPost">
+        UPDATE job_user_post
+        SET TITLE = #{title},
+            COMPANY_NAME = #{companyName},
+            COMPANY_TYPE = #{companyType},
+            DESCRIPTION = #{description},
+            CAREER_LEVEL = #{careerLevel},
+            EDUCATION = #{education},
+            DEADLINE = #{deadline}, IS_ACTIVE = #{isActive}
+        WHERE ID = #{id}
+    </update>
+
+    <select id="findById" resultType="com.example.TEAM202507_01.menus.job.entity.JobUserPost">
+        SELECT
+            ID, CATEGORY, USER_ID, TITLE, COMPANY_NAME, COMPANY_TYPE,
+            DESCRIPTION, CAREER_LEVEL, EDUCATION,
+            DEADLINE, TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT,
+            IS_ACTIVE
+        FROM job_user_post WHERE ID = #{id}
+    </select>
+
+</mapper>

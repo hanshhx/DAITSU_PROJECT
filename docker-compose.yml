@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # 1. Nginx (웹 서버)
+  web-proxy:
+    image: nginx:latest
+    container_name: daitshu-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  # 2. ElasticSearch (검색 엔진)
+  elasticsearch:
+    container_name: daitshu-elastic
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - node.name=daitshu-node
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    networks:
+      - app-network
+
+  # 3. Redis (캐시 서버)
+  redis:
+    image: redis:alpine
+    container_name: daitshu-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  # 4. Spring Boot (백엔드 서버)
+  backend:
+    container_name: spring-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_PERSPECTIVE_KEY=${GOOGLE_PERSPECTIVE_KEY}
+    env_file:
+      - .env
+    # [수정됨] depends_on 문법 오류 수정 (- 하이픈 제거)
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+    networks:
+      - app-network
+
+  # 5. Next.js (프론트엔드)
+  frontend:
+    container_name: next-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost/api"
+        NEXT_PUBLIC_NAVER_CLIENT_ID: ${NEXT_PUBLIC_NAVER_CLIENT_ID}
+        NEXT_PUBLIC_KAKAO_REST_KEY: ${NEXT_PUBLIC_KAKAO_REST_KEY}
+        NEXT_PUBLIC_KAKAO_MAP_KEY: ${NEXT_PUBLIC_KAKAO_MAP_KEY}
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost/api
+      - NEXT_PUBLIC_NAVER_CLIENT_ID=${NEXT_PUBLIC_NAVER_CLIENT_ID}
+      - NEXT_PUBLIC_KAKAO_REST_KEY=${NEXT_PUBLIC_KAKAO_REST_KEY}
+    depends_on:
+      - backend
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  # 6. Flask (AI 서버)
+  flask-app:
+    container_name: flask-ai-server
+    build: ./flask
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

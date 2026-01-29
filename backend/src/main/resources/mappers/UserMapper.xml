@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.user.repository.UserMapper">
+
+    <resultMap id="UserWithAuthMap" type="com.example.TEAM202507_01.user.dto.UserDto">
+        <id property="id" column="ID"/>
+        <result property="loginId" column="LOGIN_ID"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="email" column="EMAIL"/>
+        <result property="name" column="name"/>
+        <result property="nickname" column="NICKName"/>
+        <result property="birthDate" column="BIRTH_DATE"/>
+        <result property="gender" column="GENDER"/>
+        <result property="createdAt" column="CREATED_AT"/>
+
+        <collection property="authorities" ofType="java.lang.String">
+            <result column="authority"/>
+        </collection>
+    </resultMap>
+
+    <select id="findAll" resultType="com.example.TEAM202507_01.user.dto.UserDto">
+        SELECT
+            ID,
+            LOGIN_ID,
+            EMAIL,
+            name,
+            NICKNAME,
+            BIRTH_DATE,
+            GENDER,
+            CREATED_AT
+        FROM USERS
+        ORDER BY ID DESC
+    </select>
+
+    <select id="findById" resultType="com.example.TEAM202507_01.user.dto.UserDto">
+        SELECT
+            ID,
+            LOGIN_ID,
+            PASSWORD,
+            EMAIL,
+            NAME,
+            NICKNAME,
+            birth_date,
+            GENDER AS gender,
+            CREATED_AT
+        FROM USERS
+        WHERE LOGIN_ID = #{loginId}
+    </select>
+
+    <select id="findByLoginId" resultMap="UserWithAuthMap">
+        SELECT
+            U.ID,
+            U.LOGIN_ID,
+            U.PASSWORD,
+            U.EMAIL,
+            U.name,
+            U.NICKNAME,
+            U.BIRTH_DATE,
+            U.GENDER,
+            U.CREATED_AT,
+            A.authority
+        FROM USERS U
+                 LEFT JOIN USER_AUTH A ON U.LOGIN_ID = A.LOGIN_ID  WHERE U.LOGIN_ID = #{loginId}
+    </select>
+
+    <insert id="save" parameterType="com.example.TEAM202507_01.user.dto.CreateUserDto">
+        INSERT INTO USERS (
+            ID,
+            LOGIN_ID,
+            PASSWORD,
+            EMAIL,
+            NAME,
+            NICKNAME,
+            BIRTH_DATE,
+            GENDER,
+            CREATED_AT
+        ) VALUES (
+                     #{id, jdbcType=VARCHAR},
+                     #{loginId, jdbcType=VARCHAR},
+                     #{password, jdbcType=VARCHAR},
+                     #{email, jdbcType=VARCHAR},
+                     #{name, jdbcType=VARCHAR},
+                     #{nickname, jdbcType=VARCHAR},
+                     #{birthDate, jdbcType=DATE},
+                     #{gender, jdbcType=VARCHAR},
+                     SYSDATE
+                 )
+    </insert>
+
+    <insert id="saveAuthority">
+        INSERT INTO USER_AUTH (
+            LOGIN_ID,
+            AUTHORITY
+        ) VALUES (
+                     #{loginId},         #{authName} )
+    </insert>
+
+    <update id="update" parameterType="com.example.TEAM202507_01.user.dto.UserDto">
+        UPDATE USERS
+        SET
+            PASSWORD = #{password},
+            EMAIL = #{email},
+            NAME = #{name},
+            NICKNAME = #{nickname},
+            BIRTH_DATE = #{birthDate}
+        WHERE LOGIN_ID = #{loginId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM USERS WHERE LOGIN_ID = #{loginId}
+    </delete>
+
+    <select id="countByLoginId" resultType="int">
+        SELECT COUNT(*) FROM USERS WHERE LOGIN_ID = #{loginId}
+    </select>
+
+    <select id="findRostId" parameterType="com.example.TEAM202507_01.user.dto.FindUserIdDto">
+        SELECT LOGIN_ID FROM USERS WHERE NAME = #{name} AND EMAIL = #{email}
+    </select>
+
+    <insert id="insertUser" parameterType="com.example.TEAM202507_01.user.dto.UserDto">
+        INSERT INTO USERS (
+            ID,
+            LOGIN_ID,
+            PASSWORD,
+            EMAIL,
+            NAME,
+            NICKNAME,
+            BIRTH_DATE,
+            GENDER,
+            CREATED_AT
+        ) VALUES (
+                     #{id},
+                     #{loginId},
+                     #{password},
+                     #{email},
+                     #{name},
+                     #{nickname},
+                     SYSDATE,
+                     #{gender, jdbcType=VARCHAR}, SYSDATE
+                 )
+    </insert>
+    <select id="resetPw" resultType="int" parameterType="com.example.TEAM202507_01.user.dto.ResetPasswordDto">
+        SELECT COUNT(ID)
+        FROM USERS
+        WHERE LOGIN_ID = #{loginId} AND NAME = #{name} AND EMAIL = #{email}
+    </select>
+
+    <update id="updatePw" parameterType="com.example.TEAM202507_01.user.dto.UpdatePwDto">
+        UPDATE USERS
+        SET PASSWORD = #{password}
+        WHERE EMAIL = #{email}
+    </update>
+
+    <select id="countByEmail" resultType="int">
+        SELECT COUNT(*) FROM USERS WHERE LOWER(TRIM(EMAIL)) = LOWER(TRIM(#{email}))
+    </select>
+
+    <select id="findUserAuthByLoginId" resultType="com.example.TEAM202507_01.user.dto.UserAuthDto">
+        SELECT LOGIN_ID, AUTHORITY AS ROLE
+        FROM USER_AUTH
+        WHERE LOGIN_ID = #{loginId}
+    </select>
+
+</mapper>

@@ -1,0 +1,104 @@
+# ==========================
+# 1. 운영체제 및 시스템 파일 (기본)
+# ==========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak
+*.swp
+
+
+# ==========================
+# 2. 보안 및 환경 설정 (절대 업로드 금지)
+# ==========================
+.env
+.env.*
+!.env.example
+.venv
+docker-compose.override.yml
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+
+# ==========================
+# 3. IDE 및 에디터 설정
+# ==========================
+.idea/
+.vscode/
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+
+# ==========================
+# 4. Backend (Spring Boot / Gradle)
+# ==========================
+backend/.gradle/
+backend/build/
+backend/out/
+backend/bin/
+backend/target/
+backend/.idea/
+backend/*.iml
+backend/.settings/
+backend/.classpath
+backend/.project
+backend/.factorypath
+
+# 보안 설정 파일 (비밀번호 포함됨)
+backend/**/application.properties
+backend/**/application.yml
+backend/**/application-*.properties
+backend/**/application-*.yml
+
+# 실행 가능한 jar 파일 제외 (소스만 올림)
+backend/*.jar
+
+
+# ==========================
+# 5. Frontend (Next.js / Node.js)
+# ==========================
+frontend/node_modules/
+frontend/.next/
+frontend/build/
+frontend/dist/
+frontend/out/
+frontend/coverage/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# 각종 로그 파일
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ==========================
+# 6. AI Server (Flask / Python)
+# ==========================
+# 가상환경 및 캐시
+ai-server/venv/
+ai-server/.venv/
+ai-server/env/
+ai-server/__pycache__/
+ai-server/*.pyc
+ai-server/.pytest_cache/
+flask/venv/
+flask/.venv/
+flask/__pycache__/
+flask/*.pyc
+
+# [중요] 임시 이미지 저장소 (업로드 시 제외)
+ai-server/temp_img/
+flask/temp_img/
+app/temp_img/

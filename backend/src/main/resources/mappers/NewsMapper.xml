@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.TEAM202507_01.menus.news.repository.NewsMapper">
+
+    <select id="findAll" resultType="NewsDto">
+        SELECT
+            *
+        FROM NEWS
+        ORDER BY ID DESC
+    </select>
+
+    <select id="findById" parameterType="Long" resultType="NewsDto">
+        SELECT * FROM NEWS
+        WHERE ID = #{id}
+    </select>
+
+<!--    <insert id="save" parameterType="NewsDto" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">-->
+<!--        INSERT INTO NEWS (-->
+<!--            TITLE,-->
+<!--            CONTENT,-->
+<!--            PUBLISHER,-->
+<!--            PUBLISHED_AT-->
+<!--        ) VALUES (-->
+<!--                     #{title},-->
+<!--                     #{content},-->
+<!--                     #{publisher},-->
+<!--                     SYSDATE )-->
+<!--    </insert>-->
+
+<!--    <update id="update" parameterType="NewsDto">-->
+<!--        UPDATE NEWS-->
+<!--        SET-->
+<!--            TITLE = #{title},-->
+<!--            CONTENT = #{content},-->
+<!--            PUBLISHER = #{publisher}-->
+<!--        WHERE ID = #{id}-->
+<!--    </update>-->
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM NEWS
+        WHERE ID = #{id}
+    </delete>
+
+</mapper>

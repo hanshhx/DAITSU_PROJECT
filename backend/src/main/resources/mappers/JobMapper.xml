@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace: JobMapper 인터페이스와 연결 -->
+<mapper namespace="com.example.TEAM202507_01.menus.job.repository.JobMapper">
+
+    <!-- findAll: 조건부 검색 쿼리 -->
+    <select id="findAll" resultType="com.example.TEAM202507_01.menus.job.entity.JobPost">
+        SELECT * FROM JOB_POST
+        <where>
+            <!-- 1. 키워드 검색: 제목이나 회사명에 키워드가 포함되면 가져옴 -->
+            <!-- || : 오라클에서 문자열 합치기 기호. '%' || '자바' || '%' -> '%자바%' -->
+            <if test="keyword != null and keyword != ''">
+                AND (TITLE LIKE '%' || #{keyword} || '%'
+                OR COMPANY_NAME LIKE '%' || #{keyword} || '%')
+            </if>
+            <!-- 2. 경력 검색 -->
+            <if test="career != null and career != ''">
+                AND CAREER_LEVEL LIKE '%' || #{career} || '%'
+            </if>
+            <!-- 3. 학력 검색 -->
+            <if test="education != null and education != ''">
+                AND EDUCATION LIKE '%' || #{education} || '%'
+            </if>
+        </where>
+        ORDER BY ID DESC <!-- 최신순 정렬 -->
+    </select>
+
+    <select id="findById" resultType="com.example.TEAM202507_01.menus.job.entity.JobPost">
+        SELECT * FROM JOB_POST WHERE ID = #{id}
+    </select>
+    <!-- insertJobPost: 크롤링 데이터 저장 -->
+    <insert id="insertJobPost" parameterType="com.example.TEAM202507_01.menus.job.entity.JobPost">
+        INSERT INTO JOB_POST (
+            CATEGORY, TITLE, COMPANY_NAME, COMPANY_TYPE, DESCRIPTION,
+            CAREER_LEVEL, EDUCATION, DEADLINE, LINK, IS_ACTIVE, CREATED_AT
+        ) VALUES (
+                     #{category}, #{title}, #{companyName}, #{companyType}, #{description},
+                     #{careerLevel}, #{education}, #{deadline}, #{link}, #{isActive}, SYSDATE
+                 )
+    </insert>
+
+    <update id="updateJobPost" parameterType="com.example.TEAM202507_01.menus.job.entity.JobPost">
+        UPDATE JOB_POST
+        SET TITLE = #{title},
+            COMPANY_NAME = #{companyName},
+            DEADLINE = #{deadline},
+            IS_ACTIVE = #{isActive}
+        WHERE ID = #{id}
+    </update>
+
+    <!-- insertJobPost: 크롤링 데이터 저장 -->
+    <select id="countByCompanyAndTitle" resultType="int">
+        SELECT COUNT(*) FROM JOB_POST
+        WHERE COMPANY_NAME = #{companyName} AND TITLE = #{title}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM JOB_POST
+    </select>
+
+
+    <select id="findAllSearch" parameterType="com.example.TEAM202507_01.menus.job.entity.JobPost">
+        SELECT * FROM JOB_POST
+        ORDER BY ID DESC
+    </select>
+</mapper>
