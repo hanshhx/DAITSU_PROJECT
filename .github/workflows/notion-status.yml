@@ -32,27 +32,32 @@ jobs:
       - name: Update Notion Success
         # 12. 'if: success()'는 이전 단계(Docker Build)가 성공했을 때만 실행하라는 조건입니다.
         if: success()
-        # 13. 노션 페이지 상태를 업데이트해주는 미리 만들어진 오픈소스 도구를 가져와 사용합니다.
-        uses: makenotion/notion-status-action@v1
-        with:
-          # 14. 깃허브 보안 설정(Secrets)에 저장한 노션 API 토큰을 불러와 인증합니다.
-          notion_token: ${{ secrets.NOTION_TOKEN }}
-          # 15. 업데이트를 진행할 대상 노션 페이지의 고유 ID를 전달합니다.
-          notion_page_id: ${{ secrets.NOTION_PAGE_ID }}
-          # 16. 노션 대시보드에 표시할 상태 텍스트입니다. 초록색 이모지로 성공을 알립니다.
-          status: "🟢 빌드 성공 (정상)"
-          # 17. 마지막으로 코드를 올린 커밋 메시지와 시간을 노션에 함께 기록합니다.
-          description: "최근 커밋: ${{ github.event.head_commit.message }} (${{ github.event.head_commit.timestamp }})"
+        # [수정] 사라진 외부 액션(uses)을 제거하고, 노션 API를 직접 호출하는 스크립트(run)로 변경했습니다.
+        run: |
+          curl -X PATCH "https://api.notion.com/v1/pages/${{ secrets.NOTION_PAGE_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.NOTION_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -H "Notion-Version: 2022-06-28" \
+            --data '{
+              "properties": {
+                "Status": { "select": { "name": "🟢 빌드 성공 (정상)" } },
+                "Description": { "rich_text": [ { "text": { "content": "최근 커밋: ${{ github.event.head_commit.message }}" } } ] }
+              }
+            }'
 
       # 18. 만약 빌드 과정 중 하나라도 실패(failure)했다면 실행되는 긴급 보고 단계입니다.
       - name: Update Notion Failure
         # 19. 어느 한 단계라도 에러가 발생하면 즉시 이 단계를 실행합니다.
         if: failure()
-        uses: makenotion/notion-status-action@v1
-        with:
-          notion_token: ${{ secrets.NOTION_TOKEN }}
-          notion_page_id: ${{ secrets.NOTION_PAGE_ID }}
-          # 20. 빨간색 이모지로 서비스나 빌드에 문제가 생겼음을 시각적으로 알립니다.
-          status: "🔴 빌드 실패 (점검)"
-          # 21. 추적을 위해 에러가 발생한 커밋의 고유 번호(SHA)를 남깁니다.
-          description: "에러 발생 지점: ${{ github.sha }} / 개발자 확인 요망"
+        # [수정] 사라진 외부 액션(uses)을 제거하고, 노션 API를 직접 호출하는 스크립트(run)로 변경했습니다.
+        run: |
+          curl -X PATCH "https://api.notion.com/v1/pages/${{ secrets.NOTION_PAGE_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.NOTION_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -H "Notion-Version: 2022-06-28" \
+            --data '{
+              "properties": {
+                "Status": { "select": { "name": "🔴 빌드 실패 (점검)" } },
+                "Description": { "rich_text": [ { "text": { "content": "에러 발생 지점: ${{ github.sha }} / 개발자 확인 요망" } } ] }
+              }
+            }'
