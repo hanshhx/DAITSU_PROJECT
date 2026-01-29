@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 1. Nginx (웹 서버)
+  # 1. Nginx (웹 서버) - 기존 코드 유지
   web-proxy:
     image: nginx:latest
     container_name: daitshu-nginx
@@ -15,7 +15,7 @@ services:
     networks:
       - app-network
 
-  # 2. ElasticSearch (검색 엔진)
+  # 2. ElasticSearch (검색 엔진) - 기존 코드 유지
   elasticsearch:
     container_name: daitshu-elastic
     build:
@@ -40,7 +40,7 @@ services:
     networks:
       - app-network
 
-  # 3. Redis (캐시 서버)
+  # 3. Redis (캐시 서버) - 기존 코드 유지
   redis:
     image: redis:alpine
     container_name: daitshu-redis
@@ -49,7 +49,7 @@ services:
     networks:
       - app-network
 
-  # 4. Spring Boot (백엔드 서버)
+  # 4. Spring Boot (백엔드 서버) - 기존 코드 유지
   backend:
     container_name: spring-backend
     build:
@@ -63,7 +63,6 @@ services:
       - GOOGLE_PERSPECTIVE_KEY=${GOOGLE_PERSPECTIVE_KEY}
     env_file:
       - .env
-    # [수정됨] depends_on 문법 오류 수정 (- 하이픈 제거)
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -73,7 +72,7 @@ services:
     networks:
       - app-network
 
-  # 5. Next.js (프론트엔드)
+  # 5. Next.js (프론트엔드) - 기존 코드 유지
   frontend:
     container_name: next-frontend
     build:
@@ -99,12 +98,26 @@ services:
     networks:
       - app-network
 
-  # 6. Flask (AI 서버)
+  # 6. Flask (AI 서버) - [여기만 수정됨] 포트 개방 및 경로 연결
   flask-app:
     container_name: flask-ai-server
     build: ./flask
+    # ▼▼▼▼▼ 수정된 부분 시작 ▼▼▼▼▼
+    ports:
+      - "5000:5000"  # [핵심] 브라우저가 직접 접속할 수 있게 포트 개방
+    environment:
+      - FLASK_ENV=development
+      - MODEL_PATH=/app/model/mat.keras
+      - SERVER_ADDRESS=0.0.0.0
+      - SERVER_PORT=5000
+      - IMG_PATH=/app/temp_img/
+    volumes:
+      - ./flask/model:/app/model       # 모델 파일 연결
+      - ./flask/temp_img:/app/temp_img # 임시 이미지 폴더 연결
+    # ▲▲▲▲▲ 수정된 부분 끝 ▲▲▲▲▲
     env_file:
       - .env
+    restart: always
     networks:
       - app-network
 

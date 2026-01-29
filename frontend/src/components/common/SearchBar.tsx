@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import axios from "axios"; // [추가] AI 서버 통신용
 
-const aiIp = process.env.NEXT_PUBLIC_AI_IP || "192.168.0.134";
+const aiIp = process.env.NEXT_PUBLIC_AI_IP || "localhost";
 
 interface SearchBarProps {
   // 스타일 커스터마이징을 위한 클래스명들 (선택 사항)
