@@ -29,6 +29,7 @@
 **❌ 잘못된 예 (하드코딩)**
 
 > 이렇게 IP가 코드에 고정되어 있으면 배포 시 접속이 불가능.
+
 javascript
 const response = await axios.post('http://192.168.0.134:5000/predict', formData);
 
