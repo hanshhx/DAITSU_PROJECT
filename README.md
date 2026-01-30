@@ -38,83 +38,84 @@ const response = await axios.post('http://192.168.0.134:5000/predict', formData)
 `.env` 파일에서 주소를 동적으로 불러오도록 수정.
 
 javascript
-const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:5000';
-const response = await axios.post(`${aiUrl}/predict`, formData);
+**const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:5000';**
+**const response = await axios.post(`${aiUrl}/predict`, formData);**
 
 1. AI & External API Keys
-GEMINI_API_KEY=여기에_키_입력
-GOOGLE_PERSPECTIVE_KEY=여기에_키_입력
+**GEMINI_API_KEY=여기에_키_입력**
+**GOOGLE_PERSPECTIVE_KEY=여기에_키_입력**
 
 3. Database (Oracle)
-Docker 내부 통신용
-DB_URL=jdbc:oracle:thin:@//host.docker.internal:1521/xe
-DB_USERNAME=아이디
-DB_PASSWORD=비밀번호
+**Docker 내부 통신용**
+**DB_URL=jdbc:oracle:thin:@//host.docker.internal:1521/xe**
+**DB_USERNAME=아이디**
+**DB_PASSWORD=비밀번호**
 
 4. OAuth (Social Login)
-NAVER_CLIENT_ID=네이버_클라이언트_ID
-NAVER_CLIENT_SECRET=네이버_시크릿
-KAKAO_CLIENT_ID=카카오_클라이언트_ID
+**NAVER_CLIENT_ID=네이버_클라이언트_ID**
+**NAVER_CLIENT_SECRET=네이버_시크릿**
+**KAKAO_CLIENT_ID=카카오_클라이언트_ID**
 
  프론트엔드 노출용 (Next.js)
-NEXT_PUBLIC_NAVER_CLIENT_ID=네이버_클라이언트_ID
-NEXT_PUBLIC_KAKAO_REST_KEY=카카오_REST_키
-NEXT_PUBLIC_KAKAO_MAP_KEY=카카오_지도_JS_키
+**NEXT_PUBLIC_NAVER_CLIENT_ID=네이버_클라이언트_ID**
+**NEXT_PUBLIC_KAKAO_REST_KEY=카카오_REST_키**
+**NEXT_PUBLIC_KAKAO_MAP_KEY=카카오_지도_JS_키**
 
 
  4. Server URLs (Network Config)
 
-[프론트 -> 백엔드] Nginx(80포트)를 통해 API 호출 (502 에러 방지)
-NEXT_PUBLIC_API_URL=http://localhost/api
+**[프론트 -> 백엔드] Nginx(80포트)를 통해 API 호출 (502 에러 방지)**
+**NEXT_PUBLIC_API_URL=http://localhost/api**
 
- [프론트 -> AI] Nginx(80포트)를 통해 AI 호출 (네트워크 에러 방지)
-NEXT_PUBLIC_AI_URL=http://localhost/ai
+**[프론트 -> AI] Nginx(80포트)를 통해 AI 호출 (네트워크 에러 방지)**
+**NEXT_PUBLIC_AI_URL=http://localhost/ai**
 
- [백엔드 -> AI] 도커 내부망 통신용
-AI_BASE_URL=http://flask-ai-server:5000
+ **[백엔드 -> AI] 도커 내부망 통신용**
+**AI_BASE_URL=http://flask-ai-server:5000**
 
 # 서버 내부 설정
-SERVER_ADDRESS=0.0.0.0
-SERVER_PORT=5000
-MODEL_PATH=/app/model/mat.keras
-IMG_PATH=/app/temp_img/
+**SERVER_ADDRESS=0.0.0.0**
+**SERVER_PORT=5000**
+**MODEL_PATH=/app/model/mat.keras**
+**IMG_PATH=/app/temp_img/**
 
 4. Server URLs (Network Config)
- [프론트 -> 백엔드] Nginx(80포트)를 통해 API 호출 (502 에러 방지)
-NEXT_PUBLIC_API_URL=http://localhost/api
+ **[프론트 -> 백엔드] Nginx(80포트)를 통해 API 호출 (502 에러 방지)**
+**NEXT_PUBLIC_API_URL=http://localhost/api**
  [프론트 -> AI] Nginx(80포트)를 통해 AI 호출 (네트워크 에러 방지)
-NEXT_PUBLIC_AI_URL=http://localhost/ai
+**NEXT_PUBLIC_AI_URL=http://localhost/ai**
+
  [백엔드 -> AI] 도커 내부망 통신용
 AI_BASE_URL=http://flask-ai-server:5000
 
 # 서버 내부 설정
-SERVER_ADDRESS=0.0.0.0
-SERVER_PORT=5000
-MODEL_PATH=/app/model/mat.keras
-IMG_PATH=/app/temp_img/
+**SERVER_ADDRESS=0.0.0.0**
+**SERVER_PORT=5000**
+**MODEL_PATH=/app/model/mat.keras**
+**IMG_PATH=/app/temp_img/**
 
 🚀 4. 실행 방법 (How to Run)
 
-Docker가 설치되어 있어야 합니다. 터미널을 열고 아래 명령어를 순서대로 입력.
+**Docker가 설치되어 있어야 함. 터미널을 열고 아래 명령어를 순서대로 입력.**
 
 4-1. 전체 서비스 실행
 
-캐시 없이 깨끗하게 새로 빌드해서 실행합니다.
+**캐시 없이 깨끗하게 새로 빌드해서 실행**
 
-참고: 오라클 DB 이미지가 커서 처음 실행 시 5~10분 정도 소요.
+**참고: 오라클 DB 이미지가 커서 처음 실행 시 5~10분 정도 소요.**
 
 bash
-docker-compose up -d --build
+**docker-compose up -d --build**
 
 4-2. 특정 서비스만 재시작
 
-코드를 수정했다면 전체를 껐다 켤 필요 없이 해당 서비스만 재시작 가능.
+**코드를 수정했다면 전체를 껐다 켤 필요 없이 해당 서비스만 재시작 가능.**
 
 bash
-docker-compose restart [서비스명]
-# 예: docker-compose restart frontend
+**docker-compose restart [서비스명]**
+** 예: docker-compose restart frontend**
 
 4-3. 서비스 종료
 bash
-docker-compose down
+**docker-compose down**
 
