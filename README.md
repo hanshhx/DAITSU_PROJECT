@@ -117,5 +117,6 @@ bash
 
 4-3. 서비스 종료
 bash
+
 **docker-compose down**
 
