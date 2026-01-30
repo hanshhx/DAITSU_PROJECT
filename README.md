@@ -112,7 +112,9 @@ bash
 **코드를 수정했다면 전체를 껐다 켤 필요 없이 해당 서비스만 재시작 가능.**
 
 bash
+
 **docker-compose restart [서비스명]**
+
 ** 예: docker-compose restart frontend**
 
 4-3. 서비스 종료
