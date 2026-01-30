@@ -40,35 +40,35 @@ javascript
 const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:5000';
 const response = await axios.post(`${aiUrl}/predict`, formData);
 
-# ========================================
-# 1. AI & External API Keys
-# ========================================
+========================================
+1. AI & External API Keys
+========================================
 GEMINI_API_KEY=여기에_키_입력
 GOOGLE_PERSPECTIVE_KEY=여기에_키_입력
 
-# ========================================
-# 2. Database (Oracle)
-# ========================================
-# Docker 내부 통신용
+ ========================================
+ 2. Database (Oracle)
+========================================
+ Docker 내부 통신용
 DB_URL=jdbc:oracle:thin:@//host.docker.internal:1521/xe
 DB_USERNAME=아이디
 DB_PASSWORD=비밀번호
 
-# ========================================
-# 3. OAuth (Social Login)
-# ========================================
+ ========================================
+ 3. OAuth (Social Login)
+ ========================================
 NAVER_CLIENT_ID=네이버_클라이언트_ID
 NAVER_CLIENT_SECRET=네이버_시크릿
 KAKAO_CLIENT_ID=카카오_클라이언트_ID
 
-# 프론트엔드 노출용 (Next.js)
+ 프론트엔드 노출용 (Next.js)
 NEXT_PUBLIC_NAVER_CLIENT_ID=네이버_클라이언트_ID
 NEXT_PUBLIC_KAKAO_REST_KEY=카카오_REST_키
 NEXT_PUBLIC_KAKAO_MAP_KEY=카카오_지도_JS_키
 
-# ========================================
-# 4. Server URLs (Network Config)
-# ========================================
+ ========================================
+ 4. Server URLs (Network Config)
+ ========================================
 # [프론트 -> 백엔드] Nginx(80포트)를 통해 API 호출 (502 에러 방지)
 NEXT_PUBLIC_API_URL=http://localhost/api
 
